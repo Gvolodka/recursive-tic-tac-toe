@@ -19,3 +19,13 @@ export function calculateWinner(board: TBoardValue): string | null {
   }
   return drawSign;
 }
+
+export function scaleReducer(state: number, action: "inc" | "dec"): number {
+  if (action === "inc") {
+    return state + 1;
+  }
+  if (action === "dec") {
+    return state - 1;
+  }
+  return state;
+}

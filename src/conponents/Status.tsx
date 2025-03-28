@@ -5,6 +5,7 @@ import { AppContext } from "../constants";
 
 export default function Status(props: {
   winner: TSquareValue;
+  isConnected: boolean;
   scale: number;
   zoomIn: () => void;
   zoomOut: () => void;
@@ -14,10 +15,14 @@ export default function Status(props: {
   const statusText = props.winner
     ? "Winner: " + props.winner
     : "Next player: " + (xIsNext ? "X" : "O");
+  const connectionStatus = `Client: ${
+    props.isConnected ? "online" : "offline"
+  }`;
 
   return (
     <div className="status">
       <span>{statusText}</span>
+      <span>{connectionStatus}</span>
       <div className="actions">
         <span>{"Scale: " + props.scale}</span>
         <button className="zoom-in" onClick={props.zoomIn}>

@@ -1,24 +1,29 @@
-import { JSX, useReducer, useState } from "react";
+import { JSX, useReducer } from "react";
+import { Socket } from "socket.io-client";
 
 import { AppContext } from "../constants";
 import { TGameValue } from "../types";
-
-import { scaleReducer } from "../functions";
+import { scaleReducer, useGameState } from "../functions";
 
 import Status from "./Status";
 import Square from "./Square";
 import Board from "./Board";
 import HistoryList from "./History";
 
-export default function Game(): JSX.Element {
+export default function Game(props: {
+  socket: Socket | null;
+  isConnected: boolean;
+}): JSX.Element {
   const [scale, dispatchScale] = useReducer(scaleReducer, 10);
-  const [history, setHistory] = useState<Array<TGameValue>>([[]]);
-  const [currentMove, setCurrentMove] = useState(0);
+  const { history, currentMove, onPlay, setCurrentMove } = useGameState(
+    props.socket
+  );
 
   function handlePlay(nextValue: TGameValue): void {
-    const nextHistory = [...history.slice(0, currentMove + 1), nextValue];
-    setHistory(nextHistory);
-    setCurrentMove(nextHistory.length - 1);
+    onPlay([...history.slice(0, currentMove + 1), nextValue]);
+  }
+  function handleRestart(): void {
+    onPlay([[]]);
   }
 
   const xIsNext = currentMove % 2 === 0;
@@ -34,6 +39,7 @@ export default function Game(): JSX.Element {
         <div className="header">
           <Status
             winner={winner}
+            isConnected={props.isConnected}
             scale={actualScale}
             zoomIn={() => {
               dispatchScale("inc");
@@ -41,10 +47,7 @@ export default function Game(): JSX.Element {
             zoomOut={() => {
               dispatchScale("dec");
             }}
-            restart={() => {
-              setHistory([[]]);
-              setCurrentMove(0);
-            }}
+            restart={handleRestart}
           />
           <HistoryList
             history={history}
